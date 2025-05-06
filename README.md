@@ -22,7 +22,7 @@
 
 1. به صورت مستقیم می‌توانید از **نسخه‌ی میزبانی شده** این صفحه در GitHub Pages استفاده کنید:
 
-   > [https://github.com/aminiyt1/v2raydownloader/v2raydownloader.html](https://github.com/aminiyt1/v2raydownloader/v2raydownloader.html)
+   > [https://aminiyt1.github.io/v2raydownloader/v2raydownloader.html](https://aminiyt1.github.io/v2raydownloader/v2raydownloader.html)
 
 ---
 
