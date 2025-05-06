@@ -50,5 +50,5 @@
 ---
 
 <div align="center">
-  <sub>نوشته شده توسط **aminiyt** | <a href="https://t.me/asrnovin_ir">تلگرام</a> • <a href="https://www.youtube.com/aminiyt1">یوتیوب</a> • <a href="https://instagram.com/aminiyt1">اینستاگرام</a></sub>
+  <sub>نوشته شده توسط **aminiyt** | <a href="https://t.me/asrnovin_ir">تلگرام</a> • <a href="https://www.youtube.com/@aminiyt1">یوتیوب</a> • <a href="https://instagram.com/aminiyt1">اینستاگرام</a></sub>
 </div>
