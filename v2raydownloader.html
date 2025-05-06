@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دانلود v2rayNG</title>
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #5A5AFF; /* آبی مایل به بنفش */
+      --secondary: #ffffff;
+      --bg: #f4f7ff;
+      --text: #333;
+      --box-bg: #e1e6ff;
+      --changelog-bg: #faf7ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: var(--bg); color: var(--text); direction: rtl; line-height: 1.6; }
+    .container { max-width: 600px; margin: 20px auto; padding: 20px; background: var(--secondary); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { color: var(--primary); margin-bottom: 15px; text-align: center; }
+    .latest-box { background: var(--box-bg); padding: 10px 15px; border-radius: 6px; margin-bottom: 15px; font-weight: bold; display: flex; align-items: center; }
+    .latest-box i { margin-left: 8px; color: var(--primary); }
+    label { display: block; margin-top: 15px; color: var(--primary); font-weight: 600; }
+    select, button { width: 100%; padding: 10px 14px; margin-top: 8px; font-size: 1rem; border: 1px solid #ddd; border-radius: 4px; }
+    select { appearance: none; background: var(--secondary) url('data:image/svg+xml;utf8,<svg fill="%235a5aff" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center; background-size: 16px; }
+    button { background: var(--primary); color: var(--secondary); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    button i { margin-left: 8px; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    #changelog { margin-top: 15px; white-space: pre-wrap; background: var(--changelog-bg); padding: 12px; border-radius: 4px; display: none; }
+    .footer-box { max-width: 600px; margin: 20px auto; background: var(--changelog-bg); padding: 15px; border-radius: 8px; text-align: center; }
+    .footer-box p { color: var(--text); margin-bottom: 10px; }
+    .footer-box div { display: flex; justify-content: center; gap: 10px; }
+    .social-btn { background: var(--secondary); color: var(--primary); border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; font-size: 0.9rem; text-decoration: none; }
+    .social-btn i { margin-left: 6px; }
+    @media (max-width: 480px) {
+      .container, .footer-box { padding: 15px; }
+      select, button { font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><i class="fas fa-download"></i> دانلود v2rayNG</h1>
+    <div class="latest-box">
+      <i class="fas fa-star"></i>
+      آخرین نسخه: <span id="latestTag">در حال بارگذاری...</span>
+    </div>
+
+    <label for="releaseSelect"><i class="fas fa-tags"></i> انتخاب نسخه:</label>
+    <select id="releaseSelect"></select>
+
+    <label for="assetSelect"><i class="fas fa-file-archive"></i> انتخاب فایل برای دانلود:</label>
+    <select id="assetSelect"></select>
+
+    <a id="downloadLink" href="#" download style="text-decoration: none;">
+      <button id="downloadBtn" disabled><i class="fas fa-cloud-download-alt"></i> دانلود نسخه انتخاب شده</button>
+    </a>
+
+    <button id="changelogBtn" disabled><i class="fas fa-list"></i> مشاهده تغییرات</button>
+    <div id="changelog"></div>
+  </div>
+
+  <div class="footer-box">
+    <p>نوشته شده توسط <strong>aminiyt</strong></p>
+    <div>
+      <button class="social-btn" onclick="window.open('https://t.me/your_telegram','_blank')"><i class="fab fa-telegram-plane"></i> تلگرام</button>
+      <button class="social-btn" onclick="window.open('https://www.youtube.com/your_channel','_blank')"><i class="fab fa-youtube"></i> یوتیوب</button>
+      <button class="social-btn" onclick="window.open('https://instagram.com/your_instagram','_blank')"><i class="fab fa-instagram"></i> اینستاگرام</button>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = 'https://api.github.com/repos/2dust/v2rayNG/releases';
+    const releaseSelect = document.getElementById('releaseSelect');
+    const assetSelect = document.getElementById('assetSelect');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const downloadLink = document.getElementById('downloadLink');
+    const changelogBtn = document.getElementById('changelogBtn');
+    const changelogDiv = document.getElementById('changelog');
+    const latestTag = document.getElementById('latestTag');
+    let releases = [];
+
+    function detectOS() {
+      const platform = navigator.userAgent;
+      if (/Windows/i.test(platform)) return 'windows';
+      if (/Macintosh|Mac OS X/i.test(platform)) return 'macos';
+      if (/Linux/i.test(platform)) return 'linux';
+      if (/Android/i.test(platform)) return 'android';
+      if (/iPhone|iPad|iPod/i.test(platform)) return 'ios';
+      return '';
+    }
+
+    async function loadReleases() {
+      try {
+        const resp = await fetch(apiUrl);
+        releases = await resp.json();
+        populateReleases();
+      } catch (err) {
+        latestTag.textContent = 'خطا';
+        releaseSelect.innerHTML = '<option>خطا در بارگذاری</option>';
+      }
+    }
+
+    function populateReleases() {
+      if (releases.length) {
+        latestTag.textContent = releases[0].tag_name;
+      }
+      releaseSelect.innerHTML = '';
+      releases.forEach((rel, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = rel.tag_name;
+        releaseSelect.appendChild(opt);
+      });
+      releaseSelect.selectedIndex = 0;
+      updateAssets();
+      changelogBtn.disabled = false;
+    }
+
+    function updateAssets() {
+      const rel = releases[releaseSelect.value];
+      assetSelect.innerHTML = '';
+      rel.assets.forEach((asset, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.textContent = asset.name;
+        assetSelect.appendChild(opt);
+      });
+      const osKey = detectOS();
+      if (osKey) {
+        const idx = rel.assets.findIndex(a => a.name.toLowerCase().includes(osKey));
+        if (idx !== -1) assetSelect.selectedIndex = idx;
+      }
+      updateDownloadLink();
+    }
+
+    function updateDownloadLink() {
+      const rel = releases[releaseSelect.value];
+      const asset = rel.assets[assetSelect.value];
+      if (!asset) { downloadBtn.disabled = true; return; }
+      downloadLink.href = asset.browser_download_url;
+      downloadBtn.disabled = false;
+      downloadBtn.innerHTML = `<i class='fas fa-cloud-download-alt'></i> دانلود نسخه انتخاب شده`;
+    }
+
+    function showChangelog() {
+      const rel = releases[releaseSelect.value];
+      changelogDiv.textContent = rel.body || 'هیچ تغییری ثبت نشده';
+      changelogDiv.style.display = 'block';
+    }
+
+    releaseSelect.addEventListener('change', () => { updateAssets(); changelogDiv.style.display = 'none'; });
+    assetSelect.addEventListener('change', () => { updateDownloadLink(); });
+    changelogBtn.addEventListener('click', showChangelog);
+
+    loadReleases();
+  </script>
+</body>
+</html>
